@@ -5,19 +5,24 @@ Warden::Strategies.add(:heroku_sso_authenticable) do
   end
 
   def authenticate! 
-    fail!("invalid parameters") if !valid?
-    fail!("bad token") if params[:timestamp].to_i < (Time.now - 2*60).to_i
-
-    pre_token = params[:id] + ':' + DeviseHeroku.sso_salt + ':' + params[:timestamp]
-    token = Digest::SHA1.hexdigest(pre_token).to_s
-
-    fail!("bad token") if token != params[:token]
-
-    resource = DeviseHeroku.resource.find(params[:id])
-    if resource
+    if params[:timestamp].to_i < (Time.now - 2*60).to_i
+      heroku_error_response "Expired Timestamp"
+    elsif token != params[:token]
+      heroku_error_response "Invalid Token"
+    elsif resource = DeviseHeroku.resource.find(params[:id])
       success!(resource) 
     else
-      fail!("not found")
+      heroku_error_response "Invalid User"
     end
-  end 
+  end
+
+  private
+  def heroku_error_response(body)
+    custom!([403, {}, [body]])
+  end
+
+  def token
+    pre_token = params[:id] + ':' + DeviseHeroku.sso_salt + ':' + params[:timestamp]
+    Digest::SHA1.hexdigest(pre_token).to_s
+  end
 end

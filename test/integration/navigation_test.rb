@@ -36,23 +36,20 @@ class NavigationTest < ActionDispatch::IntegrationTest
     id, timestamp, token = valid_token
 
     post "/heroku/sso/login", :id => id, :timestamp => timestamp, :token => "someOtherToken"
-    assert_equal 302, status
-    assert_equal "/heroku/sso/login", path
+    assert_equal 403, status
   end
 
   test "fail if old token" do
     id, timestamp, token = old_token
 
     post "/heroku/sso/login", :id => id, :timestamp => timestamp, :token => token
-    assert_equal 302, status
-    assert_equal "/heroku/sso/login", path
+    assert_equal 403, status
   end
 
   test "fail if old not found" do
     id, timestamp, token = valid_token(2)
     post "/heroku/sso/login", :id => id, :timestamp => timestamp, :token => token
-    assert_equal 302, status
-    assert_equal "/unauthenticated", path
+    assert_equal 403, status
   end
   
   test "succeeds with valid token" do
@@ -71,15 +68,14 @@ private
   end
 
   def valid_token(id = 1)
-    timestamp = Time.now.getutc
-    pre_token = "#{id}:#{@sso_salt}:#{@timestamp}"
+    timestamp = Time.now.to_i
+    pre_token = "#{id}:#{@sso_salt}:#{timestamp}"
     [id, timestamp,  Digest::SHA1.hexdigest(pre_token).to_s]
   end
   
   def old_token(id = 1)
-    time = Time.at(0)
-    timestamp = time.getutc
-    pre_token = "#{id}:#{@sso_salt}:#{@timestamp}"
+    timestamp = Time.at(0).to_i
+    pre_token = "#{id}:#{@sso_salt}:#{timestamp}"
     [id, timestamp,  Digest::SHA1.hexdigest(pre_token).to_s]
   end    
 end
