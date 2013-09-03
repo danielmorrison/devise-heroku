@@ -4,6 +4,7 @@ class DeviseHeroku::SsoController < ApplicationController
 
   def login
     cookies['heroku-nav-data'] = params['nav-data']
+    session[:heroku_app] = params[:app]
     redirect_to DeviseHeroku.redirect_path
   end
 end
