@@ -3,6 +3,7 @@ class DeviseHeroku::SsoController < ApplicationController
   before_filter "authenticate_#{DeviseHeroku.resource.to_s.parameterize.underscore}!".to_sym
 
   def login
+    cookies['heroku-nav-data'] = params['nav-data']
     redirect_to DeviseHeroku.redirect_path
   end
 end
