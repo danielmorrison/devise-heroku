@@ -1,7 +1,7 @@
 class DeviseHeroku::SsoController < DeviseController
   skip_before_filter :verify_authenticity_token
 
-  def login
+  def create
     warden.logout(resource_name)
     self.resource = warden.authenticate!(:scope => resource_name)
 
