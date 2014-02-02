@@ -6,7 +6,6 @@ class NavigationTest < ActionDispatch::IntegrationTest
   
   def setup
     @user1 = User.create!(:email => "bob@example.com")
-    @user2 = User.create!(:email => "alice@example.com")
   end
 
   test "fail if missing params" do
@@ -52,7 +51,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
   end
 
   test "fail if old not found" do
-    id, timestamp, token = valid_token(@user2)
+    id, timestamp, token = valid_token(User.new(:id => 9999))
     post "/heroku/sso/login", :id => id, :timestamp => timestamp, :token => token
     assert_equal 403, status
   end
@@ -71,9 +70,10 @@ class NavigationTest < ActionDispatch::IntegrationTest
     post "/heroku/sso/login", :id => id, :timestamp => timestamp, :token => token
     assert_equal @user1, controller.current_user
 
-    id, timestamp, token = valid_token(@user2)
+    user2 = User.create!(:email => "alice@example.com")
+    id, timestamp, token = valid_token(user2)
     post "/heroku/sso/login", :id => id, :timestamp => timestamp, :token => token
-    assert_equal @user2, controller.current_user
+    assert_equal user2, controller.current_user
   end
 
 private
