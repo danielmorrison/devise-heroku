@@ -66,6 +66,16 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/"
   end
   
+  test "it replaces a previous session when a user is already logged in" do
+    id, timestamp, token = valid_token(@user1)
+    post "/heroku/sso/login", :id => id, :timestamp => timestamp, :token => token
+    assert_equal @user1, controller.current_user
+
+    id, timestamp, token = valid_token(@user2)
+    post "/heroku/sso/login", :id => id, :timestamp => timestamp, :token => token
+    assert_equal @user2, controller.current_user
+  end
+
 private
   def set_salt
     # must match value in dummy app initializer

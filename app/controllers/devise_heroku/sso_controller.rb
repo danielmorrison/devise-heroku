@@ -1,8 +1,13 @@
-class DeviseHeroku::SsoController < ApplicationController
+class DeviseHeroku::SsoController < DeviseController
   skip_before_filter :verify_authenticity_token
-  before_filter "authenticate_#{DeviseHeroku.resource.to_s.parameterize.underscore}!".to_sym
 
   def login
+    warden.logout(resource_name)
+    self.resource = warden.authenticate!(:scope => resource_name)
+
+    set_flash_message(:notice, :signed_in) if is_navigational_format?
+    sign_in(resource_name, resource)
+
     cookies['heroku-nav-data'] = params['nav-data']
     session[:heroku_app] = params[:app]
     redirect_to DeviseHeroku.redirect_path
