@@ -7,7 +7,8 @@ gemspec
 
 gem 'devise'
 
-# jquery-rails is used by the dummy application
+# gems used by the dummy application
+gem "sqlite3"
 gem "jquery-rails"
 
 # Declare any dependencies that are still in development here instead of in
