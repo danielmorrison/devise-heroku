@@ -9,7 +9,7 @@ Warden::Strategies.add(:heroku_sso_authenticable) do
       heroku_error_response "Expired Timestamp"
     elsif token != params[:token]
       heroku_error_response "Invalid Token"
-    elsif resource = DeviseHeroku.resource.find_by_id(params[:id])
+    elsif resource = DeviseHeroku.resource.find_for_authentication(:id => params[:id])
       success!(resource) 
     else
       heroku_error_response "Invalid User"
